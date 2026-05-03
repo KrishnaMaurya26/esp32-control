@@ -74,11 +74,6 @@
       margin-top: 10px;
     }
 
-    .alert {
-      color: red;
-      font-weight: bold;
-    }
-
     #alertBox {
       display: none;
       background: #ffebee;
@@ -106,8 +101,8 @@
 <!-- LOGIN -->
 <div id="loginBox">
   <h3>Login</h3>
-  <input type="krishna.maurya@gmail.com" id="email" placeholder="Email">
-  <input type="123456789" id="password" placeholder="Password">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login</button>
 </div>
 
@@ -156,12 +151,12 @@
 
 </div>
 
-<!-- FIREBASE COMPAT SDK -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
 <script>
+
 const firebaseConfig = {
   apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
   authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
@@ -174,21 +169,36 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-function login() {
-  let email = document.getElementById("email").value;
-  let pass = document.getElementById("password").value;
+const db = firebase.database();
 
-  firebase.auth().signInWithEmailAndPassword(email, pass)
-    .then(() => {
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      start();
-    })
-    .catch(e => alert(e.message));
+// ================= SIMPLE LOGIN =================
+const allowedEmail = "krishna.maurya@gmail.com";
+const allowedPassword = "9821173589";
+
+function login() {
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    alert("Enter email and password");
+    return;
+  }
+
+  if (email === allowedEmail && password === allowedPassword) {
+
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    start();
+
+  } else {
+    alert("Invalid credentials");
+  }
 }
 
+// ================= START DASHBOARD =================
 function start() {
-  const db = firebase.database();
 
   // SENSOR DATA
   db.ref("/sensors").on("value", snap => {
@@ -217,6 +227,7 @@ function start() {
   });
 }
 
+// ================= ALERT UI =================
 function showAlert(msg) {
   let box = document.getElementById("alertBox");
   box.innerText = msg;
@@ -227,11 +238,13 @@ function showAlert(msg) {
   }, 4000);
 }
 
+// ================= THRESHOLD =================
 function setThreshold() {
   let val = document.getElementById("threshold").value;
   firebase.database().ref("/thresholds/temperature").set(Number(val));
   alert("Threshold Updated");
 }
+
 </script>
 
 </body>

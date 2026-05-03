@@ -1,99 +1,136 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Smart Home IoT Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8" />
+<title>Smart Home Control Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      text-align: center;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #0f172a;
+  color: white;
+}
 
-    h1 {
-      margin: 20px;
-    }
+/* NAVBAR */
+.navbar {
+  background: #111827;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
 
-    #loginBox {
-      max-width: 350px;
-      margin: 80px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    }
+.navbar h2 {
+  margin: 0;
+  font-size: 18px;
+}
 
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+.status-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: #22c55e;
+  font-size: 12px;
+}
 
-    button {
-      padding: 10px;
-      width: 95%;
-      border: none;
-      border-radius: 8px;
-      background: #1976d2;
-      color: white;
-      cursor: pointer;
-    }
+/* LOGIN */
+#loginBox {
+  max-width: 350px;
+  margin: 100px auto;
+  background: #1f2937;
+  padding: 25px;
+  border-radius: 15px;
+}
 
-    button:hover {
-      opacity: 0.8;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: #111827;
+  color: white;
+}
 
-    #dashboard {
-      display: none;
-      padding: 10px;
-    }
+button {
+  width: 100%;
+  padding: 12px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
 
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-    }
+button:hover {
+  background: #2563eb;
+}
 
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      width: 180px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+/* DASHBOARD */
+#dashboard {
+  display: none;
+  padding: 20px;
+}
 
-    .value {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
 
-    #alertBox {
-      display: none;
-      background: #ffebee;
-      color: red;
-      padding: 10px;
-      margin: 10px;
-      border-radius: 8px;
-      font-weight: bold;
-    }
+/* CARD */
+.card {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
 
-    .threshold-box {
-      margin-top: 20px;
-    }
+.card:hover {
+  transform: translateY(-5px);
+}
 
-  </style>
+.icon {
+  font-size: 30px;
+}
+
+.value {
+  font-size: 22px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* ALERT */
+#alertBox {
+  display: none;
+  background: #ef4444;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+/* THRESHOLD */
+.threshold {
+  margin-top: 20px;
+  background: #1f2937;
+  padding: 15px;
+  border-radius: 15px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>🔥 Smart Home IoT Dashboard</h1>
+<!-- NAVBAR -->
+<div class="navbar">
+  <h2>🏠 Smart IoT Dashboard</h2>
+  <div class="status-pill">ONLINE</div>
+</div>
 
 <!-- ALERT -->
 <div id="alertBox"></div>
@@ -112,140 +149,50 @@
   <div class="grid">
 
     <div class="card">
-      <h3>Temperature 🌡</h3>
+      <div class="icon">🌡</div>
+      <div>Temperature</div>
       <div class="value" id="temp">--</div>
     </div>
 
     <div class="card">
-      <h3>Humidity 💧</h3>
+      <div class="icon">💧</div>
+      <div>Humidity</div>
       <div class="value" id="hum">--</div>
     </div>
 
     <div class="card">
-      <h3>Flame 🔥</h3>
+      <div class="icon">🔥</div>
+      <div>Fire Status</div>
       <div class="value" id="flame">--</div>
     </div>
 
     <div class="card">
-      <h3>Intruder 🚨</h3>
+      <div class="icon">🚨</div>
+      <div>Intruder</div>
       <div class="value" id="intruder">--</div>
     </div>
 
     <div class="card">
-      <h3>Light 💡</h3>
+      <div class="icon">💡</div>
+      <div>Light</div>
       <div class="value" id="light">--</div>
     </div>
 
     <div class="card">
-      <h3>Fan 🌀</h3>
+      <div class="icon">🌀</div>
+      <div>Fan</div>
       <div class="value" id="fan">--</div>
     </div>
 
   </div>
 
-  <div class="threshold-box">
-    <h3>Set Temperature Threshold</h3>
-    <input type="number" id="threshold" placeholder="e.g. 30">
+  <div class="threshold">
+    <h3>⚙ Set Temperature Limit</h3>
+    <input type="number" id="threshold" placeholder="Enter value">
     <button onclick="setThreshold()">Update</button>
   </div>
 
 </div>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
-<script>
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
-  authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
-  databaseURL: "https://esp-32-smart-iot-using-sensors-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "esp-32-smart-iot-using-sensors",
-  storageBucket: "esp-32-smart-iot-using-sensors.firebasestorage.app",
-  messagingSenderId: "895952873687",
-  appId: "1:895952873687:web:45da0a4a90d42274052892"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.database();
-
-// ================= SIMPLE LOGIN =================
-const allowedEmail = "krishna.maurya@gmail.com";
-const allowedPassword = "9821173589";
-
-function login() {
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  if (!email || !password) {
-    alert("Enter email and password");
-    return;
-  }
-
-  if (email === allowedEmail && password === allowedPassword) {
-
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-
-    start();
-
-  } else {
-    alert("Invalid credentials");
-  }
-}
-
-// ================= START DASHBOARD =================
-function start() {
-
-  // SENSOR DATA
-  db.ref("/sensors").on("value", snap => {
-    let d = snap.val();
-    if (!d) return;
-
-    document.getElementById("temp").innerText = d.temperature + " °C";
-    document.getElementById("hum").innerText = d.humidity + " %";
-    document.getElementById("flame").innerText = d.flame ? "DETECTED 🔥" : "Safe";
-    document.getElementById("intruder").innerText = d.proximity ? "YES 🚨" : "No";
-    document.getElementById("light").innerText = d.ldr ? "ON 💡" : "OFF";
-  });
-
-  // FAN
-  db.ref("/fan").on("value", snap => {
-    document.getElementById("fan").innerText = snap.val() ? "ON 🌀" : "OFF";
-  });
-
-  // ALERTS
-  db.ref("/alerts").on("value", snap => {
-    let a = snap.val();
-    if (!a) return;
-
-    if (a.fire) showAlert("🔥 FIRE DETECTED!");
-    if (a.intruder) showAlert("🚨 INTRUDER ALERT!");
-  });
-}
-
-// ================= ALERT UI =================
-function showAlert(msg) {
-  let box = document.getElementById("alertBox");
-  box.innerText = msg;
-  box.style.display = "block";
-
-  setTimeout(() => {
-    box.style.display = "none";
-  }, 4000);
-}
-
-// ================= THRESHOLD =================
-function setThreshold() {
-  let val = document.getElementById("threshold").value;
-  firebase.database().ref("/thresholds/temperature").set(Number(val));
-  alert("Threshold Updated");
-}
-
-</script>
 
 </body>
 </html>

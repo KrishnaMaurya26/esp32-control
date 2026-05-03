@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Home IoT Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 20px;
+    }
+
+    #loginBox {
+      max-width: 350px;
+      margin: 80px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      width: 95%;
+      border: none;
+      border-radius: 8px;
+      background: #1976d2;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    #dashboard {
+      display: none;
+      padding: 10px;
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      width: 180px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .alert {
+      color: red;
+      font-weight: bold;
+    }
+
+    #alertBox {
+      display: none;
+      background: #ffebee;
+      color: red;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .threshold-box {
+      margin-top: 20px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<h1>🔥 Smart Home IoT Dashboard</h1>
+
+<!-- ALERT -->
+<div id="alertBox"></div>
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <h3>Login</h3>
+  <input type="email" id="krishna.maurya@gmail.com" placeholder="Email">
+  <input type="password" id="123456789" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div class="grid">
+
+    <div class="card">
+      <h3>Temperature 🌡</h3>
+      <div class="value" id="temp">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Humidity 💧</h3>
+      <div class="value" id="hum">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Flame 🔥</h3>
+      <div class="value" id="flame">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Intruder 🚨</h3>
+      <div class="value" id="intruder">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Light 💡</h3>
+      <div class="value" id="light">--</div>
+    </div>
+
+    <div class="card">
+      <h3>Fan 🌀</h3>
+      <div class="value" id="fan">--</div>
+    </div>
+
+  </div>
+
+  <div class="threshold-box">
+    <h3>Set Temperature Threshold</h3>
+    <input type="number" id="threshold" placeholder="e.g. 30">
+    <button onclick="setThreshold()">Update</button>
+  </div>
+
+</div>
+
+<!-- FIREBASE COMPAT SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
+  authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
+  databaseURL: "https://esp-32-smart-iot-using-sensors-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "esp-32-smart-iot-using-sensors",
+  storageBucket: "esp-32-smart-iot-using-sensors.firebasestorage.app",
+  messagingSenderId: "895952873687",
+  appId: "1:895952873687:web:45da0a4a90d42274052892"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+function login() {
+  let email = document.getElementById("email").value;
+  let pass = document.getElementById("password").value;
+
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .then(() => {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      start();
+    })
+    .catch(e => alert(e.message));
+}
+
+function start() {
+  const db = firebase.database();
+
+  // SENSOR DATA
+  db.ref("/sensors").on("value", snap => {
+    let d = snap.val();
+    if (!d) return;
+
+    document.getElementById("temp").innerText = d.temperature + " °C";
+    document.getElementById("hum").innerText = d.humidity + " %";
+    document.getElementById("flame").innerText = d.flame ? "DETECTED 🔥" : "Safe";
+    document.getElementById("intruder").innerText = d.proximity ? "YES 🚨" : "No";
+    document.getElementById("light").innerText = d.ldr ? "ON 💡" : "OFF";
+  });
+
+  // FAN
+  db.ref("/fan").on("value", snap => {
+    document.getElementById("fan").innerText = snap.val() ? "ON 🌀" : "OFF";
+  });
+
+  // ALERTS
+  db.ref("/alerts").on("value", snap => {
+    let a = snap.val();
+    if (!a) return;
+
+    if (a.fire) showAlert("🔥 FIRE DETECTED!");
+    if (a.intruder) showAlert("🚨 INTRUDER ALERT!");
+  });
+}
+
+function showAlert(msg) {
+  let box = document.getElementById("alertBox");
+  box.innerText = msg;
+  box.style.display = "block";
+
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 4000);
+}
+
+function setThreshold() {
+  let val = document.getElementById("threshold").value;
+  firebase.database().ref("/thresholds/temperature").set(Number(val));
+  alert("Threshold Updated");
+}
+</script>
+
+</body>
+</html>

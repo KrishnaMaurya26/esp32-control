@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>Smart Home Control Panel</title>
+<title>Smart Home IoT Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
@@ -20,18 +20,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-
-.navbar h2 {
-  margin: 0;
-  font-size: 18px;
 }
 
 .status-pill {
+  background: #22c55e;
   padding: 5px 12px;
   border-radius: 20px;
-  background: #22c55e;
   font-size: 12px;
 }
 
@@ -64,10 +58,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #2563eb;
-}
-
 /* DASHBOARD */
 #dashboard {
   display: none;
@@ -77,9 +67,8 @@ button:hover {
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
-  margin-top: 20px;
 }
 
 /* CARD */
@@ -87,7 +76,7 @@ button:hover {
   background: #1e293b;
   padding: 15px;
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  text-align: center;
   transition: 0.3s;
 }
 
@@ -95,23 +84,24 @@ button:hover {
   transform: translateY(-5px);
 }
 
-.icon {
-  font-size: 30px;
+.device-img {
+  width: 60px;
+  height: 60px;
 }
 
 .value {
-  font-size: 22px;
-  margin-top: 10px;
+  font-size: 20px;
   font-weight: bold;
+  margin-top: 8px;
 }
 
 /* ALERT */
 #alertBox {
   display: none;
   background: #ef4444;
-  padding: 12px;
+  padding: 10px;
+  margin: 10px;
   border-radius: 10px;
-  margin: 10px 0;
 }
 
 /* THRESHOLD */
@@ -128,7 +118,7 @@ button:hover {
 
 <!-- NAVBAR -->
 <div class="navbar">
-  <h2>🏠 Smart IoT Dashboard</h2>
+  <h3>🏠 Smart IoT Dashboard</h3>
   <div class="status-pill">ONLINE</div>
 </div>
 
@@ -149,37 +139,37 @@ button:hover {
   <div class="grid">
 
     <div class="card">
-      <div class="icon">🌡</div>
+      <img class="device-img" src="https://img.icons8.com/fluency/96/temperature.png"/>
       <div>Temperature</div>
       <div class="value" id="temp">--</div>
     </div>
 
     <div class="card">
-      <div class="icon">💧</div>
+      <img class="device-img" src="https://img.icons8.com/fluency/96/humidity.png"/>
       <div>Humidity</div>
       <div class="value" id="hum">--</div>
     </div>
 
     <div class="card">
-      <div class="icon">🔥</div>
-      <div>Fire Status</div>
+      <img class="device-img" src="https://img.icons8.com/fluency/96/fire-element.png"/>
+      <div>Fire</div>
       <div class="value" id="flame">--</div>
     </div>
 
     <div class="card">
-      <div class="icon">🚨</div>
+      <img class="device-img" src="https://img.icons8.com/fluency/96/burglar.png"/>
       <div>Intruder</div>
       <div class="value" id="intruder">--</div>
     </div>
 
     <div class="card">
-      <div class="icon">💡</div>
+      <img class="device-img" src="https://img.icons8.com/fluency/96/light-on.png"/>
       <div>Light</div>
       <div class="value" id="light">--</div>
     </div>
 
     <div class="card">
-      <div class="icon">🌀</div>
+      <img class="device-img" src="https://img.icons8.com/fluency/96/fan.png"/>
       <div>Fan</div>
       <div class="value" id="fan">--</div>
     </div>
@@ -187,12 +177,92 @@ button:hover {
   </div>
 
   <div class="threshold">
-    <h3>⚙ Set Temperature Limit</h3>
+    <h3>Set Temperature Threshold</h3>
     <input type="number" id="threshold" placeholder="Enter value">
     <button onclick="setThreshold()">Update</button>
   </div>
 
 </div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
+  authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
+  databaseURL: "https://esp-32-smart-iot-using-sensors-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "esp-32-smart-iot-using-sensors",
+  storageBucket: "esp-32-smart-iot-using-sensors.firebasestorage.app",
+  messagingSenderId: "895952873687",
+  appId: "1:895952873687:web:45da0a4a90d42274052892"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+/* LOGIN */
+const allowedEmail = "krishna.maurya@gmail.com";
+const allowedPassword = "9821173589";
+
+function login() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+
+  if (email === allowedEmail && pass === allowedPassword) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    start();
+  } else {
+    alert("Invalid credentials");
+  }
+}
+
+/* START */
+function start() {
+
+  db.ref("/sensors").on("value", snap => {
+    let d = snap.val();
+    if (!d) return;
+
+    document.getElementById("temp").innerText = d.temperature + "°C";
+    document.getElementById("hum").innerText = d.humidity + "%";
+    document.getElementById("flame").innerText = d.flame ? "DETECTED 🔥" : "Safe";
+    document.getElementById("intruder").innerText = d.proximity ? "YES 🚨" : "No";
+    document.getElementById("light").innerText = d.ldr ? "ON 💡" : "OFF";
+  });
+
+  db.ref("/fan").on("value", snap => {
+    document.getElementById("fan").innerText = snap.val() ? "ON 🌀" : "OFF";
+  });
+
+  db.ref("/alerts").on("value", snap => {
+    let a = snap.val();
+    if (!a) return;
+
+    if (a.fire) showAlert("🔥 FIRE DETECTED!");
+    if (a.intruder) showAlert("🚨 INTRUDER ALERT!");
+  });
+}
+
+/* ALERT */
+function showAlert(msg) {
+  let box = document.getElementById("alertBox");
+  box.innerText = msg;
+  box.style.display = "block";
+
+  setTimeout(() => box.style.display = "none", 4000);
+}
+
+/* THRESHOLD */
+function setThreshold() {
+  let val = document.getElementById("threshold").value;
+  db.ref("/thresholds/temperature").set(Number(val));
+  alert("Threshold Updated");
+}
+</script>
 
 </body>
 </html>

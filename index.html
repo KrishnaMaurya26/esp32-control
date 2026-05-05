@@ -1,196 +1,175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <title>Smart Home Pro | IoT Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<title>Smart IoT Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --accent-blue: #3b82f6;
-            --accent-red: #ef4444;
-            --accent-green: #10b981;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-        }
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #0f172a;
+  color: white;
+}
 
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-main);
-        }
+/* NAVBAR */
+.navbar {
+  background: #111827;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+}
 
-        .navbar {
-            background: #111827;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-        }
+/* LOGIN */
+#loginBox {
+  max-width: 350px;
+  margin: 100px auto;
+  background: #1f2937;
+  padding: 20px;
+  border-radius: 15px;
+}
 
-        .status-dot {
-            height: 10px;
-            width: 10px;
-            background-color: var(--accent-green);
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            box-shadow: 0 0 8px var(--accent-green);
-        }
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 10px;
+  background: #111827;
+  color: white;
+}
 
-        #loginBox {
-            max-width: 400px;
-            margin: 100px auto;
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            text-align: center;
-        }
+button {
+  width: 100%;
+  padding: 12px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
 
-        input {
-            width: 100%;
-            padding: 0.75rem;
-            margin: 0.5rem 0;
-            border: 1px solid #334155;
-            border-radius: 0.5rem;
-            background: #0f172a;
-            color: white;
-            box-sizing: border-box;
-        }
+/* DASHBOARD */
+#dashboard {
+  display: none;
+  padding: 20px;
+}
 
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--accent-blue);
-            border: none;
-            border-radius: 0.5rem;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 15px;
+}
 
-        .btn-manual { background: #64748b; margin-top: 5px; font-size: 0.8rem; }
-        .btn-auto { background: #0369a1; margin-top: 5px; font-size: 0.8rem; }
+.card {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 15px;
+  text-align: center;
+}
 
-        #dashboard { display: none; padding: 2rem; }
+.device-img {
+  width: 55px;
+  height: 55px;
+}
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-        }
+.value {
+  font-size: 18px;
+  margin-top: 5px;
+  font-weight: bold;
+}
 
-        .card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            text-align: center;
-            border: 1px solid #334155;
-        }
+/* ALERT */
+#alertBox {
+  display: none;
+  background: #ef4444;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
 
-        .icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .label { color: var(--text-dim); font-size: 0.9rem; text-transform: uppercase; }
-        .value { font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
-        .mode-label { font-size: 0.7rem; color: var(--accent-blue); font-weight: bold; margin-bottom: 10px; }
-
-        #alertBox {
-            display: none;
-            background: var(--accent-red);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .threshold-section {
-            margin-top: 2rem;
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            max-width: 400px;
-        }
-    </style>
+/* THRESHOLD */
+.threshold {
+  margin-top: 20px;
+  background: #1f2937;
+  padding: 15px;
+  border-radius: 15px;
+}
+</style>
 </head>
 
 <body>
 
-<div id="alertBox">SYSTEM ALERT TRIGGERED</div>
-
+<!-- NAVBAR -->
 <div class="navbar">
-    <div style="font-weight: bold; font-size: 1.2rem;">🏠 SMART HOME CLOUD</div>
-    <div><span class="status-dot"></span> LIVE DATA</div>
+  <div>🏠 Smart IoT</div>
+  <div>LIVE</div>
 </div>
 
+<!-- ALERT -->
+<div id="alertBox"></div>
+
+<!-- LOGIN -->
 <div id="loginBox">
-    <h3>Restricted Access</h3>
-    <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Enter Dashboard</button>
+  <h3>Login</h3>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
 </div>
 
+<!-- DASHBOARD -->
 <div id="dashboard">
-    <div class="grid">
-        <div class="card">
-            <div class="icon">🌡️</div>
-            <div class="label">Temperature</div>
-            <div class="value" id="temp">--°C</div>
-        </div>
 
-        <div class="card">
-            <div class="icon">💧</div>
-            <div class="label">Humidity</div>
-            <div class="value" id="hum">--%</div>
-        </div>
+  <div class="grid">
 
-        <div class="card">
-            <div class="icon">🔥</div>
-            <div class="label">Fire Status</div>
-            <div class="value" id="flame">Safe</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">🛡️</div>
-            <div class="label">Intruder Sensor</div>
-            <div class="value" id="intruder">Secure</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">🌀</div>
-            <div class="label">Fan Control</div>
-            <div class="value" id="fanStatus">OFF</div>
-            <div id="fanModeDisplay" class="mode-label">MODE: AUTO</div>
-            <button class="btn-auto" onclick="setMode('fan', 'AUTO')">Set Auto</button>
-            <button class="btn-manual" onclick="toggleDevice('fan')">Toggle Manual</button>
-        </div>
-
-        <div class="card">
-            <div class="icon">💡</div>
-            <div class="label">Light Control</div>
-            <div class="value" id="lightStatus">OFF</div>
-            <div id="lightModeDisplay" class="mode-label">MODE: AUTO</div>
-            <button class="btn-auto" onclick="setMode('light', 'AUTO')">Set Auto</button>
-            <button class="btn-manual" onclick="toggleDevice('light')">Toggle Manual</button>
-        </div>
+    <div class="card">
+      🌡
+      <div>Temp</div>
+      <div class="value" id="temp">--</div>
     </div>
 
-    <div class="threshold-section">
-        <h3>System Settings</h3>
-        <label class="label">Fan Activation Temp (°C)</label>
-        <input type="number" id="thresholdInput" placeholder="Enter Value">
-        <button onclick="updateThreshold()">Update Threshold</button>
+    <div class="card">
+      💧
+      <div>Humidity</div>
+      <div class="value" id="hum">--</div>
     </div>
+
+    <div class="card">
+      🔥
+      <div>Fire</div>
+      <div class="value" id="flame">--</div>
+    </div>
+
+    <div class="card">
+      🚨
+      <div>Intruder</div>
+      <div class="value" id="intruder">--</div>
+    </div>
+
+    <div class="card">
+      💡
+      <div>Light</div>
+      <div class="value" id="light">--</div>
+    </div>
+
+    <div class="card">
+      🌀
+      <div>Fan</div>
+      <div class="value" id="fan">--</div>
+    </div>
+
+  </div>
+
+  <div class="threshold">
+    <h3>Set Temperature Threshold</h3>
+    <input type="number" id="threshold" placeholder="Enter value">
+    <button onclick="setThreshold()">Update</button>
+  </div>
+
 </div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
@@ -208,98 +187,87 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const USER_EMAIL = "krishna.maurya@gmail.com";
-const USER_PASS = "9821173589";
+/* LOGIN */
+const allowedEmail = "krishna.maurya@gmail.com";
+const allowedPassword = "9821173589";
 
 function login() {
-    const emailField = document.getElementById("email");
-    const passField = document.getElementById("password");
-    
-    if (!emailField || !passField) return;
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value;
 
-    const email = emailField.value.trim().toLowerCase();
-    const pass = passField.value.trim();
+  if (email === allowedEmail && pass === allowedPassword) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    start();
+  } else {
+    alert("Invalid credentials");
+  }
+}
 
-    if (email === USER_EMAIL && pass === USER_PASS) {
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        initListeners();
-    } else {
-        alert("Invalid credentials.");
+/* START REALTIME LISTENERS */
+function start() {
+
+  const sensorRef = db.ref("/sensors");
+
+  sensorRef.on("value", (snap) => {
+
+    if (!snap.exists()) {
+      console.log("No sensor data found");
+      return;
     }
+
+    const d = snap.val();
+
+    document.getElementById("temp").innerText = d.temperature ?? "--";
+    document.getElementById("hum").innerText = d.humidity ?? "--";
+    document.getElementById("flame").innerText = d.flame ? "DETECTED 🔥" : "Safe";
+    document.getElementById("intruder").innerText = d.proximity ? "YES 🚨" : "No";
+    document.getElementById("light").innerText = d.ldr ? "ON" : "OFF";
+  });
+
+  db.ref("/fan").on("value", snap => {
+    document.getElementById("fan").innerText = snap.val() ? "ON 🌀" : "OFF";
+  });
+
+  db.ref("/alerts").on("value", snap => {
+    const a = snap.val();
+    if (!a) return;
+
+    if (a.fire) showAlert("🔥 FIRE ALERT!");
+    if (a.intruder) showAlert("🚨 INTRUDER ALERT!");
+  });
 }
 
-function initListeners() {
-    db.ref("/sensors").on("value", (snap) => {
-        const data = snap.val();
-        if (!data) return;
-        document.getElementById("temp").innerText = (data.temperature || "--") + "°C";
-        document.getElementById("hum").innerText = (data.humidity || "--") + "%";
-        
-        const flameVal = !!data.flame;
-        document.getElementById("flame").innerText = flameVal ? "🔥 DETECTED" : "Safe";
-        document.getElementById("flame").style.color = flameVal ? "#ef4444" : "#10b981";
-        
-        const proxVal = !!data.proximity;
-        document.getElementById("intruder").innerText = proxVal ? "🚨 ALERT" : "Secure";
-        document.getElementById("intruder").style.color = proxVal ? "#ef4444" : "#10b981";
-    });
+/* ALERT UI */
+function showAlert(msg) {
+  const box = document.getElementById("alertBox");
+  box.innerText = msg;
+  box.style.display = "block";
 
-    db.ref("/devices/fan").on("value", snap => {
-        const status = !!snap.val();
-        document.getElementById("fanStatus").innerText = status ? "ON" : "OFF";
-        document.getElementById("fanStatus").style.color = status ? "#10b981" : "#94a3b8";
-    });
-
-    db.ref("/devices/light").on("value", snap => {
-        const status = !!snap.val();
-        document.getElementById("lightStatus").innerText = status ? "ON" : "OFF";
-        document.getElementById("lightStatus").style.color = status ? "#10b981" : "#94a3b8";
-    });
-
-    db.ref("/mode").on("value", snap => {
-        const m = snap.val();
-        if (!m) return;
-        document.getElementById("fanModeDisplay").innerText = "MODE: " + (m.fan || "AUTO");
-        document.getElementById("lightModeDisplay").innerText = "MODE: " + (m.light || "AUTO");
-    });
-
-    db.ref("/alerts").on("value", snap => {
-        const a = snap.val();
-        const box = document.getElementById("alertBox");
-        if (a && a.fire === true) {
-            box.innerText = "🔥 CRITICAL: FIRE DETECTED!";
-            box.style.display = "block";
-            box.style.background = "#ef4444";
-        } else if (a && a.intruder === true) {
-            box.innerText = "🚨 SECURITY: INTRUDER DETECTED!";
-            box.style.display = "block";
-            box.style.background = "#f59e0b";
-        } else {
-            box.style.display = "none";
-        }
-    });
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 4000);
 }
 
-function setMode(device, mode) {
-    db.ref("/mode/" + device).set(mode);
-}
+/* THRESHOLD FIXED */
+function setThreshold() {
+  const input = document.getElementById("threshold");
 
-function toggleDevice(device) {
-    db.ref("/mode/" + device).set("MANUAL");
-    const ref = db.ref("/devices/" + device);
-    ref.once("value").then(snap => {
-        ref.set(!snap.val());
-    });
-}
+  if (!input) {
+    alert("Threshold input missing");
+    return;
+  }
 
-function updateThreshold() {
-    const input = document.getElementById("thresholdInput");
-    if (input && input.value) {
-        db.ref("/thresholds/temperature").set(Number(input.value));
-        alert("Threshold Updated!");
-    }
+  if (!input.value) {
+    alert("Enter value first");
+    return;
+  }
+
+  db.ref("/thresholds/temperature").set(Number(input.value));
+
+  alert("Threshold Updated ✔");
 }
 </script>
+
 </body>
 </html>

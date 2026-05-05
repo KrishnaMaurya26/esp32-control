@@ -4,8 +4,6 @@
     <meta charset="UTF-8" />
     <title>Smart Home Pro | IoT Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -26,7 +24,6 @@
             color: var(--text-main);
         }
 
-        /* NAVBAR */
         .navbar {
             background: #111827;
             padding: 1rem 2rem;
@@ -46,7 +43,6 @@
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        /* LOGIN BOX */
         #loginBox {
             max-width: 400px;
             margin: 100px auto;
@@ -77,16 +73,12 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             margin-top: 1rem;
         }
-
-        button:hover { opacity: 0.9; }
 
         .btn-manual { background: #64748b; margin-top: 5px; font-size: 0.8rem; }
         .btn-auto { background: #0369a1; margin-top: 5px; font-size: 0.8rem; }
 
-        /* DASHBOARD */
         #dashboard { display: none; padding: 2rem; }
 
         .grid {
@@ -101,17 +93,13 @@
             border-radius: 1rem;
             text-align: center;
             border: 1px solid #334155;
-            transition: transform 0.2s;
         }
 
-        .card:hover { transform: translateY(-5px); }
-
         .icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .label { color: var(--text-dim); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .label { color: var(--text-dim); font-size: 0.9rem; text-transform: uppercase; }
         .value { font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
-        .mode-label { font-size: 0.7rem; color: var(--accent-blue); font-weight: bold; }
+        .mode-label { font-size: 0.7rem; color: var(--accent-blue); font-weight: bold; margin-bottom: 10px; }
 
-        /* ALERT BOX */
         #alertBox {
             display: none;
             background: var(--accent-red);
@@ -122,13 +110,6 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
         }
 
         .threshold-section {
@@ -150,19 +131,15 @@
     <div><span class="status-dot"></span> LIVE DATA</div>
 </div>
 
-<!-- LOGIN -->
 <div id="loginBox">
     <h3>Restricted Access</h3>
-    <p style="color: var(--text-dim); font-size: 0.9rem;">Please enter your credentials to manage the IoT system.</p>
     <input type="email" id="email" placeholder="Email Address">
     <input type="password" id="password" placeholder="Password">
     <button onclick="login()">Enter Dashboard</button>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard">
     <div class="grid">
-        <!-- Sensors -->
         <div class="card">
             <div class="icon">🌡️</div>
             <div class="label">Temperature</div>
@@ -178,7 +155,7 @@
         <div class="card">
             <div class="icon">🔥</div>
             <div class="label">Fire Status</div>
-            <div class="value" id="flame">Scanning...</div>
+            <div class="value" id="flame">Safe</div>
         </div>
 
         <div class="card">
@@ -187,7 +164,6 @@
             <div class="value" id="intruder">Secure</div>
         </div>
 
-        <!-- Appliances -->
         <div class="card">
             <div class="icon">🌀</div>
             <div class="label">Fan Control</div>
@@ -210,17 +186,15 @@
     <div class="threshold-section">
         <h3>System Settings</h3>
         <label class="label">Fan Activation Temp (°C)</label>
-        <input type="number" id="thresholdInput" placeholder="Current: 30">
+        <input type="number" id="thresholdInput" placeholder="Enter Value">
         <button onclick="updateThreshold()">Update Threshold</button>
     </div>
 </div>
 
-<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
 <script>
-// --- Configuration ---
 const firebaseConfig = {
   apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
   authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
@@ -237,63 +211,55 @@ const db = firebase.database();
 const USER_EMAIL = "krishna.maurya@gmail.com";[cite: 1]
 const USER_PASS = "9821173589";[cite: 1]
 
-// --- Auth Logic ---
 function login() {
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim().toLowerCase();[cite: 1]
+    const pass = document.getElementById("password").value.trim();[cite: 1]
 
-    if (email === USER_EMAIL && pass === USER_PASS) {
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+    if (email === USER_EMAIL && pass === USER_PASS) {[cite: 1]
+        document.getElementById("loginBox").style.display = "none";[cite: 1]
+        document.getElementById("dashboard").style.display = "block";[cite: 1]
         initListeners();
     } else {
-        alert("Invalid credentials. Access Denied.");
+        alert("Invalid credentials.");
     }
 }
 
-// --- Real-time Listeners ---
 function initListeners() {
-    // 1. Listen to Sensors[cite: 1]
-    db.ref("/sensors").on("value", (snap) => {
+    db.ref("/sensors").on("value", (snap) => {[cite: 1]
         const data = snap.val();
         if (!data) return;
-
         document.getElementById("temp").innerText = (data.temperature || "--") + "°C";
         document.getElementById("hum").innerText = (data.humidity || "--") + "%";
-        document.getElementById("flame").innerText = data.flame ? "🔥 FLAME DETECTED" : "Safe";
+        document.getElementById("flame").innerText = data.flame ? "🔥 DETECTED" : "Safe";
         document.getElementById("flame").style.color = data.flame ? "#ef4444" : "#10b981";
-        document.getElementById("intruder").innerText = data.proximity ? "🚨 INTRUDER!" : "Secure";
+        document.getElementById("intruder").innerText = data.proximity ? "🚨 ALERT" : "Secure";
         document.getElementById("intruder").style.color = data.proximity ? "#ef4444" : "#10b981";
     });
 
-    // 2. Listen to Device Status[cite: 1]
-    db.ref("/devices/fan").on("value", snap => {
-        document.getElementById("fanStatus").innerText = snap.val() ? "ON" : "OFF";
-        document.getElementById("fanStatus").style.color = snap.val() ? "#10b981" : "#94a3b8";
+    db.ref("/devices/fan").on("value", snap => {[cite: 1]
+        const status = snap.val();
+        document.getElementById("fanStatus").innerText = status ? "ON" : "OFF";
+        document.getElementById("fanStatus").style.color = status ? "#10b981" : "#94a3b8";
     });
 
-    db.ref("/devices/light").on("value", snap => {
-        document.getElementById("lightStatus").innerText = snap.val() ? "ON" : "OFF";
-        document.getElementById("lightStatus").style.color = snap.val() ? "#10b981" : "#94a3b8";
+    db.ref("/devices/light").on("value", snap => {[cite: 1]
+        const status = snap.val();
+        document.getElementById("lightStatus").innerText = status ? "ON" : "OFF";
+        document.getElementById("lightStatus").style.color = status ? "#10b981" : "#94a3b8";
     });
 
-    // 3. Listen to Control Modes[cite: 1]
-    db.ref("/mode").on("value", snap => {
+    db.ref("/mode").on("value", snap => {[cite: 1]
         const m = snap.val();
         if (!m) return;
         document.getElementById("fanModeDisplay").innerText = "MODE: " + (m.fan || "AUTO");
         document.getElementById("lightModeDisplay").innerText = "MODE: " + (m.light || "AUTO");
     });
 
-    // 4. Global Alerts[cite: 1]
-    db.ref("/alerts").on("value", snap => {
+    db.ref("/alerts").on("value", snap => {[cite: 1]
         const a = snap.val();
         const box = document.getElementById("alertBox");
-        if (a && a.fire) {
-            box.innerText = "🔥 CRITICAL: FIRE DETECTED!";
-            box.style.display = "block";
-        } else if (a && a.intruder) {
-            box.innerText = "🚨 SECURITY: INTRUDER DETECTED!";
+        if (a && (a.fire || a.intruder)) {
+            box.innerText = a.fire ? "🔥 FIRE ALERT!" : "🚨 INTRUDER ALERT!";
             box.style.display = "block";
         } else {
             box.style.display = "none";
@@ -301,16 +267,12 @@ function initListeners() {
     });
 }
 
-// --- Interactive Functions ---
-
 function setMode(device, mode) {
     db.ref("/mode/" + device).set(mode);[cite: 1]
 }
 
 function toggleDevice(device) {
-    // Force Manual Mode when toggling[cite: 1]
-    db.ref("/mode/" + device).set("MANUAL");
-    
+    db.ref("/mode/" + device).set("MANUAL");[cite: 1]
     const ref = db.ref("/devices/" + device);
     ref.once("value").then(snap => {
         ref.set(!snap.val());
@@ -319,14 +281,11 @@ function toggleDevice(device) {
 
 function updateThreshold() {
     const val = document.getElementById("thresholdInput").value;
-    if (!val) {
-        alert("Please enter a temperature value.");
-        return;
+    if (val) {
+        db.ref("/thresholds/temperature").set(Number(val));[cite: 1]
+        alert("Threshold Updated!");
     }
-    db.ref("/thresholds/temperature").set(Number(val));[cite: 1]
-    alert("Activation Threshold Updated to " + val + "°C");
 }
 </script>
-
 </body>
 </html>

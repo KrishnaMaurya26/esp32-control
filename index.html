@@ -124,6 +124,7 @@
 
 <body>
 
+<!-- High Priority Alert Header -->
 <div id="alertBox">SYSTEM ALERT TRIGGERED</div>
 
 <div class="navbar">
@@ -131,6 +132,7 @@
     <div><span class="status-dot"></span> LIVE DATA</div>
 </div>
 
+<!-- Login Section -->
 <div id="loginBox">
     <h3>Restricted Access</h3>
     <input type="email" id="email" placeholder="Email Address">
@@ -138,6 +140,7 @@
     <button onclick="login()">Enter Dashboard</button>
 </div>
 
+<!-- Main Dashboard -->
 <div id="dashboard">
     <div class="grid">
         <div class="card">
@@ -191,11 +194,12 @@
     </div>
 </div>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
 <script>
-// Firebase Credentials
+// Firebase Configuration[cite: 1]
 const firebaseConfig = {
   apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
   authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
@@ -206,14 +210,14 @@ const firebaseConfig = {
   appId: "1:895952873687:web:45da0a4a90d42274052892"
 };
 
-// Initialize
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const USER_EMAIL = "krishna.maurya@gmail.com";
-const USER_PASS = "9821173589";
+const USER_EMAIL = "krishna.maurya@gmail.com";[cite: 1]
+const USER_PASS = "9821173589";[cite: 1]
 
-// Login Function
+// Login logic[cite: 1]
 function login() {
     const email = document.getElementById("email").value.trim().toLowerCase();
     const pass = document.getElementById("password").value.trim();
@@ -227,8 +231,9 @@ function login() {
     }
 }
 
-// Data Listeners
+// Main Realtime Listeners
 function initListeners() {
+    // Sensor Updates[cite: 1]
     db.ref("/sensors").on("value", (snap) => {
         const data = snap.val();
         if (!data) return;
@@ -240,6 +245,7 @@ function initListeners() {
         document.getElementById("intruder").style.color = data.proximity ? "#ef4444" : "#10b981";
     });
 
+    // Device Status Sync[cite: 1]
     db.ref("/devices/fan").on("value", snap => {
         const status = snap.val();
         document.getElementById("fanStatus").innerText = status ? "ON" : "OFF";
@@ -252,6 +258,7 @@ function initListeners() {
         document.getElementById("lightStatus").style.color = status ? "#10b981" : "#94a3b8";
     });
 
+    // Operation Modes[cite: 1]
     db.ref("/mode").on("value", snap => {
         const m = snap.val();
         if (!m) return;
@@ -259,24 +266,34 @@ function initListeners() {
         document.getElementById("lightModeDisplay").innerText = "MODE: " + (m.light || "AUTO");
     });
 
+    // Alerts Management[cite: 1]
     db.ref("/alerts").on("value", snap => {
         const a = snap.val();
         const box = document.getElementById("alertBox");
-        if (a && (a.fire || a.intruder)) {
-            box.innerText = a.fire ? "🔥 FIRE ALERT!" : "🚨 INTRUDER ALERT!";
+        
+        // Corrected logic: explicit true check to clear bar when false[cite: 1]
+        if (a && a.fire === true) {
+            box.innerText = "🔥 CRITICAL: FIRE DETECTED!";
             box.style.display = "block";
+            box.style.background = "#ef4444";
+        } else if (a && a.intruder === true) {
+            box.innerText = "🚨 SECURITY: INTRUDER DETECTED!";
+            box.style.display = "block";
+            box.style.background = "#f59e0b";
         } else {
+            // Hide the bar if no alert is true[cite: 1]
             box.style.display = "none";
         }
     });
 }
 
-// Control Functions
+// User Actions
 function setMode(device, mode) {
-    db.ref("/mode/" + device).set(mode);
+    db.ref("/mode/" + device).set(mode);[cite: 1]
 }
 
 function toggleDevice(device) {
+    // When manually toggling, force to Manual Mode so sensors don't fight user[cite: 1]
     db.ref("/mode/" + device).set("MANUAL");
     const ref = db.ref("/devices/" + device);
     ref.once("value").then(snap => {
@@ -287,8 +304,8 @@ function toggleDevice(device) {
 function updateThreshold() {
     const val = document.getElementById("thresholdInput").value;
     if (val) {
-        db.ref("/thresholds/temperature").set(Number(val));
-        alert("Threshold Updated!");
+        db.ref("/thresholds/temperature").set(Number(val));[cite: 1]
+        alert("Threshold Updated to " + val + "°C");
     }
 }
 </script>

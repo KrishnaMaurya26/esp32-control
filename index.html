@@ -1,179 +1,226 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Smart IoT Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <title>Smart Home Pro | IoT Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<style>
-body {
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #0f172a;
-  color: white;
-}
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-/* NAVBAR */
-.navbar {
-  background: #111827;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-}
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
 
-/* LOGIN */
-#loginBox {
-  max-width: 350px;
-  margin: 100px auto;
-  background: #1f2937;
-  padding: 20px;
-  border-radius: 15px;
-}
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+        }
 
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 10px;
-  background: #111827;
-  color: white;
-}
+        /* NAVBAR */
+        .navbar {
+            background: #111827;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
 
-button {
-  width: 100%;
-  padding: 12px;
-  background: #3b82f6;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
-}
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 8px var(--accent-green);
+        }
 
-/* DASHBOARD */
-#dashboard {
-  display: none;
-  padding: 20px;
-}
+        /* LOGIN BOX */
+        #loginBox {
+            max-width: 400px;
+            margin: 100px auto;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+        }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 15px;
-}
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            background: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
 
-.card {
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 15px;
-  text-align: center;
-}
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 1rem;
+        }
 
-.device-img {
-  width: 55px;
-  height: 55px;
-}
+        button:hover { opacity: 0.9; }
 
-.value {
-  font-size: 18px;
-  margin-top: 5px;
-  font-weight: bold;
-}
+        .btn-manual { background: #64748b; margin-top: 5px; font-size: 0.8rem; }
+        .btn-auto { background: #0369a1; margin-top: 5px; font-size: 0.8rem; }
 
-/* ALERT */
-#alertBox {
-  display: none;
-  background: #ef4444;
-  padding: 10px;
-  margin: 10px;
-  border-radius: 10px;
-}
+        /* DASHBOARD */
+        #dashboard { display: none; padding: 2rem; }
 
-/* THRESHOLD */
-.threshold {
-  margin-top: 20px;
-  background: #1f2937;
-  padding: 15px;
-  border-radius: 15px;
-}
-</style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid #334155;
+            transition: transform 0.2s;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .label { color: var(--text-dim); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
+        .mode-label { font-size: 0.7rem; color: var(--accent-blue); font-weight: bold; }
+
+        /* ALERT BOX */
+        #alertBox {
+            display: none;
+            background: var(--accent-red);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .threshold-section {
+            margin-top: 2rem;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            max-width: 400px;
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <div>🏠 Smart IoT</div>
-  <div>LIVE</div>
-</div>
+<div id="alertBox">SYSTEM ALERT TRIGGERED</div>
 
-<!-- ALERT -->
-<div id="alertBox"></div>
+<div class="navbar">
+    <div style="font-weight: bold; font-size: 1.2rem;">🏠 SMART HOME CLOUD</div>
+    <div><span class="status-dot"></span> LIVE DATA</div>
+</div>
 
 <!-- LOGIN -->
 <div id="loginBox">
-  <h3>Login</h3>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
+    <h3>Restricted Access</h3>
+    <p style="color: var(--text-dim); font-size: 0.9rem;">Please enter your credentials to manage the IoT system.</p>
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Enter Dashboard</button>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashboard">
+    <div class="grid">
+        <!-- Sensors -->
+        <div class="card">
+            <div class="icon">🌡️</div>
+            <div class="label">Temperature</div>
+            <div class="value" id="temp">--°C</div>
+        </div>
 
-  <div class="grid">
+        <div class="card">
+            <div class="icon">💧</div>
+            <div class="label">Humidity</div>
+            <div class="value" id="hum">--%</div>
+        </div>
 
-    <div class="card">
-      🌡
-      <div>Temp</div>
-      <div class="value" id="temp">--</div>
+        <div class="card">
+            <div class="icon">🔥</div>
+            <div class="label">Fire Status</div>
+            <div class="value" id="flame">Scanning...</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🛡️</div>
+            <div class="label">Intruder Sensor</div>
+            <div class="value" id="intruder">Secure</div>
+        </div>
+
+        <!-- Appliances -->
+        <div class="card">
+            <div class="icon">🌀</div>
+            <div class="label">Fan Control</div>
+            <div class="value" id="fanStatus">OFF</div>
+            <div id="fanModeDisplay" class="mode-label">MODE: AUTO</div>
+            <button class="btn-auto" onclick="setMode('fan', 'AUTO')">Set Auto</button>
+            <button class="btn-manual" onclick="toggleDevice('fan')">Toggle Manual</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">💡</div>
+            <div class="label">Light Control</div>
+            <div class="value" id="lightStatus">OFF</div>
+            <div id="lightModeDisplay" class="mode-label">MODE: AUTO</div>
+            <button class="btn-auto" onclick="setMode('light', 'AUTO')">Set Auto</button>
+            <button class="btn-manual" onclick="toggleDevice('light')">Toggle Manual</button>
+        </div>
     </div>
 
-    <div class="card">
-      💧
-      <div>Humidity</div>
-      <div class="value" id="hum">--</div>
+    <div class="threshold-section">
+        <h3>System Settings</h3>
+        <label class="label">Fan Activation Temp (°C)</label>
+        <input type="number" id="thresholdInput" placeholder="Current: 30">
+        <button onclick="updateThreshold()">Update Threshold</button>
     </div>
-
-    <div class="card">
-      🔥
-      <div>Fire</div>
-      <div class="value" id="flame">--</div>
-    </div>
-
-    <div class="card">
-      🚨
-      <div>Intruder</div>
-      <div class="value" id="intruder">--</div>
-    </div>
-
-    <div class="card">
-      💡
-      <div>Light</div>
-      <div class="value" id="light">--</div>
-    </div>
-
-    <div class="card">
-      🌀
-      <div>Fan</div>
-      <div class="value" id="fan">--</div>
-    </div>
-
-  </div>
-
-  <div class="threshold">
-    <h3>Set Temperature Threshold</h3>
-    <input type="number" id="threshold" placeholder="Enter value">
-    <button onclick="setThreshold()">Update</button>
-  </div>
-
 </div>
 
-<!-- FIREBASE -->
+<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
 <script>
+// --- Configuration ---
 const firebaseConfig = {
   apiKey: "AIzaSyAkPmYePLUJC29NTFn36vcF2IQHyFrwSzg",
   authDomain: "esp-32-smart-iot-using-sensors.firebaseapp.com",
@@ -187,85 +234,97 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* LOGIN */
-const allowedEmail = "krishna.maurya@gmail.com";
-const allowedPassword = "9821173589";
+const USER_EMAIL = "krishna.maurya@gmail.com";[cite: 1]
+const USER_PASS = "9821173589";[cite: 1]
 
+// --- Auth Logic ---
 function login() {
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value;
 
-  if (email === allowedEmail && pass === allowedPassword) {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    start();
-  } else {
-    alert("Invalid credentials");
-  }
-}
-
-/* START REALTIME LISTENERS */
-function start() {
-
-  const sensorRef = db.ref("/sensors");
-
-  sensorRef.on("value", (snap) => {
-
-    if (!snap.exists()) {
-      console.log("No sensor data found");
-      return;
+    if (email === USER_EMAIL && pass === USER_PASS) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        initListeners();
+    } else {
+        alert("Invalid credentials. Access Denied.");
     }
-
-    const d = snap.val();
-
-    document.getElementById("temp").innerText = d.temperature ?? "--";
-    document.getElementById("hum").innerText = d.humidity ?? "--";
-    document.getElementById("flame").innerText = d.flame ? "DETECTED 🔥" : "Safe";
-    document.getElementById("intruder").innerText = d.proximity ? "YES 🚨" : "No";
-    document.getElementById("light").innerText = d.ldr ? "ON" : "OFF";
-  });
-
-  db.ref("/fan").on("value", snap => {
-    document.getElementById("fan").innerText = snap.val() ? "ON 🌀" : "OFF";
-  });
-
-  db.ref("/alerts").on("value", snap => {
-    const a = snap.val();
-    if (!a) return;
-
-    if (a.fire) showAlert("🔥 FIRE ALERT!");
-    if (a.intruder) showAlert("🚨 INTRUDER ALERT!");
-  });
 }
 
-/* ALERT UI */
-function showAlert(msg) {
-  const box = document.getElementById("alertBox");
-  box.innerText = msg;
-  box.style.display = "block";
+// --- Real-time Listeners ---
+function initListeners() {
+    // 1. Listen to Sensors[cite: 1]
+    db.ref("/sensors").on("value", (snap) => {
+        const data = snap.val();
+        if (!data) return;
 
-  setTimeout(() => {
-    box.style.display = "none";
-  }, 4000);
+        document.getElementById("temp").innerText = (data.temperature || "--") + "°C";
+        document.getElementById("hum").innerText = (data.humidity || "--") + "%";
+        document.getElementById("flame").innerText = data.flame ? "🔥 FLAME DETECTED" : "Safe";
+        document.getElementById("flame").style.color = data.flame ? "#ef4444" : "#10b981";
+        document.getElementById("intruder").innerText = data.proximity ? "🚨 INTRUDER!" : "Secure";
+        document.getElementById("intruder").style.color = data.proximity ? "#ef4444" : "#10b981";
+    });
+
+    // 2. Listen to Device Status[cite: 1]
+    db.ref("/devices/fan").on("value", snap => {
+        document.getElementById("fanStatus").innerText = snap.val() ? "ON" : "OFF";
+        document.getElementById("fanStatus").style.color = snap.val() ? "#10b981" : "#94a3b8";
+    });
+
+    db.ref("/devices/light").on("value", snap => {
+        document.getElementById("lightStatus").innerText = snap.val() ? "ON" : "OFF";
+        document.getElementById("lightStatus").style.color = snap.val() ? "#10b981" : "#94a3b8";
+    });
+
+    // 3. Listen to Control Modes[cite: 1]
+    db.ref("/mode").on("value", snap => {
+        const m = snap.val();
+        if (!m) return;
+        document.getElementById("fanModeDisplay").innerText = "MODE: " + (m.fan || "AUTO");
+        document.getElementById("lightModeDisplay").innerText = "MODE: " + (m.light || "AUTO");
+    });
+
+    // 4. Global Alerts[cite: 1]
+    db.ref("/alerts").on("value", snap => {
+        const a = snap.val();
+        const box = document.getElementById("alertBox");
+        if (a && a.fire) {
+            box.innerText = "🔥 CRITICAL: FIRE DETECTED!";
+            box.style.display = "block";
+        } else if (a && a.intruder) {
+            box.innerText = "🚨 SECURITY: INTRUDER DETECTED!";
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+        }
+    });
 }
 
-/* THRESHOLD FIXED */
-function setThreshold() {
-  const input = document.getElementById("threshold");
+// --- Interactive Functions ---
 
-  if (!input) {
-    alert("Threshold input missing");
-    return;
-  }
+function setMode(device, mode) {
+    db.ref("/mode/" + device).set(mode);[cite: 1]
+}
 
-  if (!input.value) {
-    alert("Enter value first");
-    return;
-  }
+function toggleDevice(device) {
+    // Force Manual Mode when toggling[cite: 1]
+    db.ref("/mode/" + device).set("MANUAL");
+    
+    const ref = db.ref("/devices/" + device);
+    ref.once("value").then(snap => {
+        ref.set(!snap.val());
+    });
+}
 
-  db.ref("/thresholds/temperature").set(Number(input.value));
-
-  alert("Threshold Updated ✔");
+function updateThreshold() {
+    const val = document.getElementById("thresholdInput").value;
+    if (!val) {
+        alert("Please enter a temperature value.");
+        return;
+    }
+    db.ref("/thresholds/temperature").set(Number(val));[cite: 1]
+    alert("Activation Threshold Updated to " + val + "°C");
 }
 </script>
 
